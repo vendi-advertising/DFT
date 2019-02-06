@@ -45,6 +45,12 @@ class DFT
         return $this->spectra;
     }
 
+    //Same as above, the documentation has the wrong name, aliasing here for compat
+    public function getMagnitudes() : Iterable
+    {
+        return $this->getSpectra();
+    }
+
     public function getMagnitude(Complex $num) : float
     {
         return sqrt( pow($num->getReal(), 2) + pow($num->getImaginary(), 2) );
