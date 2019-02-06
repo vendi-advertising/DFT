@@ -1,41 +1,52 @@
 <?php
+
+declare(strict_types=1);
+
 namespace StjepanBrbot;
+
+use Complex\Complex;
 
 class DFT
 {
-  private $F=[];
-  private $S=[];
+    private $factors = [];
+    private $spectra = [];
 
-  public function __construct(array $data)
-  {
-    $N=count($data);
-
-    $re=round(cos(2*pi()/$N),2);
-    $im=round(-sin(2*pi()/$N),2);
-
-    for($i=0;$i<$N;$i++)
+    public function __construct(Iterable $data)
     {
-      $this->F[$i]=new Complex(0,0);
-      for($j=0;$j<$N;$j++)
-      {
-        $w=new Complex($re,$im);
-        $w->power($i*$j);
-        $w->multiply($data[$j],0);
-        $this->F[$i]->add($w);
-      }
-      $this->S[$i]=$this->F[$i]->getMagnitude();
+        $item_count = count($data);
+
+        $real_part = round(cos(2*pi()/$item_count), 2);
+        $imaginary_part = round(-sin(2*pi()/$item_count), 2);
+
+        for ($i = 0; $i < $item_count; $i++) {
+
+            $obj = new Complex(0, 0);
+            for ($j = 0; $j < $item_count; $j++) {
+                $obj = $obj->add(
+                        (new Complex($real_part, $imaginary_part))
+                            ->pow($i*$j)
+                            ->multiply(new Complex($data[$j], 0))
+                );
+            }
+
+            $this->factors[$i] = $obj;
+            $this->spectra[$i] = $this->getMagnitude($obj);
+
+        }
     }
-  }
 
-  public function getFactors()
-  {
-    return $this->F;
-  }
+    public function getFactors() : Iterable
+    {
+        return $this->factors;
+    }
 
-  public function getSpectra()
-  {
-    return $this->S;
-  }
+    public function getSpectra() : Iterable
+    {
+        return $this->spectra;
+    }
 
+    public function getMagnitude(Complex $num) : float
+    {
+        return sqrt( pow($num->getReal(), 2) + pow($num->getImaginary(), 2) );
+    }
 }
-
